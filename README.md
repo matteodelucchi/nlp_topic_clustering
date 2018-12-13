@@ -1,10 +1,3 @@
----
-output: 
-  html_document: 
-    toc: yes
----
-
-
 Cluster the Topics from Product Description
 ===================================
 Clustering of product categories from products of an online shop based on the semantically sparse product description using DL techniques. 
