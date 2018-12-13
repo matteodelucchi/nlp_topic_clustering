@@ -30,7 +30,6 @@ sys.path.append(config['SYSTEMSETUP']['LIBS'])
 # load own modules
 import libpreprocess as preprocess
 import libonehotencode as onehotencode
-import libembedding2weights as encoding2weights
 import libKmeans as km
 import libautoencoder as ac
 import libvisual as vis
@@ -45,7 +44,7 @@ PARTIALIZE = False # False or integer with the amount of observables to consider
 
 ### Import cleaned data
 # choose which column to take as document corpus
-colname = 'Short_Description'
+colname = 'Short_Description' #Arguments: 'Short_Description' or 'Long_Description'
 
 ### one-hot-encode documents
 VOCAB_SIZE_FACTOR = 5 #factor to reduce the probability of collisions from the hash function. Takes value >0
@@ -55,12 +54,11 @@ MAX_LENGTH_FACTOR= 5 #factor which is multiplied to no. of words of longest stri
 # Model Architecture
 OUTPUT_DIM = 8
 # Model compiler
-OPTIMIZER='adam'
-LOSS='binary_crossentropy'
-METRICS=['acc']
+OPTIMIZER='adam' #'adadelta', 'adam', SGD(lr=0.1, decay=0, momentum=0.9) # from keras.optimizers import SGD
+LOSS='binary_crossentropy' # 'mse', 'kullback_leibler_divergence', 'categorical_crossentropy'
 # Fit Model
 EPOCHS=50
-VERBOSE=0
+BATCH_SIZE=200
 # Model Evaluation
 VERBOSE_EVAL=0
 
@@ -117,20 +115,16 @@ output_dim = input_dim
 autoencoder = ac.onelayer_autoencoder(input_dim = input_dim, 
                                       encoding_dim = encoding_dim, 
                                       output_dim = output_dim)
-
 autoencoder.model.compile(loss='categorical_crossentropy', optimizer='adam')
-
 autoencoder.model.fit(x_train, x_train,
-                      epochs=13,
-                      batch_size=256,
+                      epochs=EPOCHS,
+                      batch_size=BATCH_SIZE,
                       shuffle=True,
                       validation_data=(x_test, x_test))
-
 # encode and decode some words
 # note that they are taken from the *test* set
 encoded_words = autoencoder.encoder.predict(x_test)
 decoded_words = autoencoder.decoder.predict(encoded_words)
-
 # plot model loss and save picture of model architecture
 vis.model_visuals(autoencoder.model)
 
@@ -140,33 +134,24 @@ vis.model_visuals(autoencoder.model)
 ### Deep autoencoder...
 deepautoencoder = ac.deep_autoencoder(input_dim = input_dim,
                                   output_dim = output_dim)
-
-deepautoencoder.model.compile(loss='binary_crossentropy', optimizer='adadelta')
-#loss='mse', optimizer=SGD(lr=0.1, decay=0, momentum=0.9) # from keras.optimizers import SGD
-#loss='kullback_leibler_divergence', optimizer='adadelta'
-#loss='categorical_crossentropy', optimizer='adam'
-#loss='binary_crossentropy', optimizer='adadelta'
-
+deepautoencoder.model.compile(loss=LOSS, optimizer=OPTIMIZER)
 deepautoencoder.model.fit(x_train, x_train,
-                          epochs=13,
-                          batch_size=256,
+                          epochs=EPOCHS,
+                          batch_size=BATCH_SIZE,
                           shuffle=True,
                           validation_data=(x_test, x_test))
-
 # encode and decode some words
 # note that they are taken from the *test* set
 encoded_words = deepautoencoder.encoder.predict(x_test)
 decoded_words = deepautoencoder.decoder.predict(encoded_words)
-
 # plot model loss and save picture of model architecture
 vis.model_visuals(deepautoencoder.model)
-
 ### get the weights of the most dense encoded layer:
 #taking a look at the model:
 print(deepautoencoder.model.summary())
 weights = deepautoencoder.model.layers[4].get_weights()[0] #layer.get_weights()[0] to access the weights and 1 for the biases
-s
-### TO BE CONTINUED FROM HERE....
+
+### TO BE CONTINUED FROM HERE ON....
 
 
 ####################################
@@ -177,4 +162,4 @@ s
 ####################################
 ### clustering
 ####################################
-km.kmeans(embedding_weights, n_clusters = k) 
+#km.kmeans(embedding_weights, n_clusters = k) 
