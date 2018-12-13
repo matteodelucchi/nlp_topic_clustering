@@ -69,15 +69,31 @@ After loading the .csv-file with the raw data it proceeds as following:
     - Remove stop words. Predefined german and english stopwords and self-specified ones.  
     - Remove white space  
 4. stemming & lemmatization  
-    - stemm english and german words.
+    - stemm english and german words.  
     - lemmatize english words. NOTE: not yet implemented for german words.  
 5. saves the file as .csv and if specified, returns the german and english stems and lemmas.  
 
 ## One-Hot-Encode Documents
 First of all, the text in the documents is converted to a sequence of words (or tokens). This is required, even though the same procedure was already done in *Data Preprocessing* since the documents are loaded again from a .csv file with the cleaned data.  
-Then with ```keras.preprocessing.text.one_hot()``` which is a wrapper for the ```keras.preprocessing.text.hashing_trick()``` function, returns an integer encoded version of the document. The use of a hash function means that there may be collisions and not all words will be assigned unique integer values. Therefore the argument ```vocab_size``` is choosen much bigger than the actual length of the document (specified by the parameter ```VOCAB_SIZE_FACTOR```).  
-Finally the sequences are padded to have all the same length. Which is basically adding zeros to the rows which have a size smaller than the longest row; considering again collision in the hash space by specifying  (specified by the parameter ```MAX_LENGTH_FACTOR```).
+Then with ```keras.preprocessing.text.one_hot()``` which is a wrapper for the ```keras.preprocessing.text.hashing_trick()``` function, an integer encoded version of the document is returned. The use of a hash function means that there may be collisions and not all words will be assigned unique integer values. Therefore the argument ```vocab_size``` is choosen much bigger than the actual length of the document (specified by the parameter ```VOCAB_SIZE_FACTOR```).  
+Finally the sequences are padded to have all the same length. Which is basically adding zeros to the rows which have a size smaller than the longest row; considering again collision in the hash space by specifying  (specified by the parameter ```MAX_LENGTH_FACTOR```).  
+Finally they were split in a test and validation set.
 
+## Embedding
+From here on, three different approaches were considered:  
+- train an own embedding  
+- work with an existing embedding  
+- apply the deep embedding clustering technique  
+The first and last are the two more  promising approaches, since our text data is very unstructered and can not beeing compared to text data from wikipedia or reuters, using an embedding trained on one of the mentioned datasets might have learned wrong semantics for our purpose.  
 
+### Training of an own embedding
+I tried two network structures:  
+- a simple autoencoder: one layer of reduction  
+- a deep autoencoder: three layers of encoding. To decode, the encoding is reversed.  
 
+I further consider the deep autoencoder since deep networks are in general able to store more information and experimented with different parameters for loss and optimzer.  
+
+TO BE CONTINUED...  
+- use different architectures of the network (more layers, embedding layer, LSTM (seq2seq))  
+- use different parameters  
 

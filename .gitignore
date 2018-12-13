@@ -1,0 +1,20 @@
+# personal data
+config.ini 
+notes.txt
+
+# generated images
+*.png
+
+# ignore the following folders
+literature/
+data/
+data_preprocessing/
+embedding/
+simple_embedding/
+
+# chache files
+*.pyc
+
+# history files
+.Rhistory
+.ipynb_checkpoints/

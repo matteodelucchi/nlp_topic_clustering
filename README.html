@@ -90,6 +90,9 @@ img {
 .tabbed-pane {
   padding-top: 12px;
 }
+.html-widget {
+  margin-bottom: 20px;
+}
 button.code-folding-btn:focus {
   outline: none;
 }
@@ -132,6 +135,9 @@ $(document).ready(function () {
 </ul></li>
 <li><a href="#data-preprocessing">Data Preprocessing</a></li>
 <li><a href="#one-hot-encode-documents">One-Hot-Encode Documents</a></li>
+<li><a href="#embedding">Embedding</a><ul>
+<li><a href="#training-of-an-own-embedding">Training of an own embedding</a></li>
+</ul></li>
 </ul></li>
 </ul>
 </div>
@@ -139,7 +145,8 @@ $(document).ready(function () {
 <div id="cluster-the-topics-from-product-description" class="section level1">
 <h1>Cluster the Topics from Product Description</h1>
 <p>Clustering of product categories from products of an online shop based on the semantically sparse product description using DL techniques.</p>
-<p>The goal is to represent the categories of the products of an online shop through an unsupervised approach, through which tedious labelling of each product by hand can be neglected and replace by the clustering of one (which is not clear yet <em>smile</em> ) layer from the Neural Network which comes in the form of a seq2seq autoencoder.</p>
+<p>The goal is to represent the categories of the products of an online shop through an unsupervised approach, through which tedious labelling of each product by hand can be replaced by the clustering of an embedding layer from a neural network.<br />
+In this first experimental approach, we try extract the weights of an word embedding from an encoder. The distance in the embedding space for each combination of word vectors is calculated by a bipartite graph and then clustered with K-means. An other approach could be to apply a deep embedding clustering analogous to: Junyuan Xie, Ross Girshick, and Ali Farhadi. Unsupervised deep embedding for clustering analysis. ICML 2016.</p>
 <div id="getting-started" class="section level2">
 <h2>Getting Started</h2>
 <p>Follow the instructions from here till the end.</p>
@@ -195,14 +202,34 @@ stemandlem: if True, german and english stemming and lemmatization of the words 
 - Remove stop words. Predefined german and english stopwords and self-specified ones.<br />
 - Remove white space<br />
 4. stemming &amp; lemmatization<br />
-- stemm english and german words. - lemmatize english words. NOTE: not yet implemented for german words.<br />
+- stemm english and german words.<br />
+- lemmatize english words. NOTE: not yet implemented for german words.<br />
 5. saves the file as .csv and if specified, returns the german and english stems and lemmas.</p>
 </div>
 <div id="one-hot-encode-documents" class="section level2">
 <h2>One-Hot-Encode Documents</h2>
 <p>First of all, the text in the documents is converted to a sequence of words (or tokens). This is required, even though the same procedure was already done in <em>Data Preprocessing</em> since the documents are loaded again from a .csv file with the cleaned data.<br />
-Then with <code>keras.preprocessing.text.one_hot()</code> which is a wrapper for the <code>keras.preprocessing.text.hashing_trick()</code> function, returns an integer encoded version of the document. The use of a hash function means that there may be collisions and not all words will be assigned unique integer values. Therefore the argument <code>vocab_size</code> is choosen much bigger than the actual length of the document (specified by the parameter <code>VOCAB_SIZE_FACTOR</code>).<br />
-Finally the sequences are padded to have all the same length. Which is basically adding zeros to the rows which have a size smaller than the longest row; considering again collision in the hash space by specifying (specified by the parameter <code>MAX_LENGTH_FACTOR</code>).</p>
+Then with <code>keras.preprocessing.text.one_hot()</code> which is a wrapper for the <code>keras.preprocessing.text.hashing_trick()</code> function, an integer encoded version of the document is returned. The use of a hash function means that there may be collisions and not all words will be assigned unique integer values. Therefore the argument <code>vocab_size</code> is choosen much bigger than the actual length of the document (specified by the parameter <code>VOCAB_SIZE_FACTOR</code>).<br />
+Finally the sequences are padded to have all the same length. Which is basically adding zeros to the rows which have a size smaller than the longest row; considering again collision in the hash space by specifying (specified by the parameter <code>MAX_LENGTH_FACTOR</code>).<br />
+Finally they were split in a test and validation set.</p>
+</div>
+<div id="embedding" class="section level2">
+<h2>Embedding</h2>
+<p>From here on, three different approaches were considered:<br />
+- train an own embedding<br />
+- work with an existing embedding<br />
+- apply the deep embedding clustering technique<br />
+The first and last are the two more promising approaches, since our text data is very unstructered and can not beeing compared to text data from wikipedia or reuters, using an embedding trained on one of the mentioned datasets might have learned wrong semantics for our purpose.</p>
+<div id="training-of-an-own-embedding" class="section level3">
+<h3>Training of an own embedding</h3>
+<p>I tried two network structures:<br />
+- a simple autoencoder: one layer of reduction<br />
+- a deep autoencoder: three layers of encoding. To decode, the encoding is reversed.</p>
+<p>I further consider the deep autoencoder since deep networks are in general able to store more information and experimented with different parameters for loss and optimzer.</p>
+<p>TO BE CONTINUED…<br />
+- use different architectures of the network (more layers, embedding layer, LSTM (seq2seq))<br />
+- use different parameters</p>
+</div>
 </div>
 </div>
 
